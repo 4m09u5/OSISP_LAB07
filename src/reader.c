@@ -46,10 +46,20 @@ void printRecord(struct record_s record) {
 }
 
 void list() {
+    struct flock lock = {
+        .l_pid = getpid(),
+        .l_start = 0,
+        .l_len = size,
+        .l_type = F_RDLCK,
+        .l_whence = SEEK_SET,
+    };
+    fcntl(fd, F_SETLK, &lock);
+    lock.l_type = F_UNLCK;
     for (int i = 0; i < totalRecords; i++) {
         printf("RECORD № %d\n", i);
         printRecord(data[i]);
     }
+    fcntl(fd, F_SETLK, &lock);
 }
 
 void get(int index) {
@@ -58,8 +68,22 @@ void get(int index) {
         return;
     }
 
+    struct flock lock = {
+        .l_pid = getpid(),
+        .l_start = index * sizeof(saved),
+        .l_len = size,
+        .l_type = F_RDLCK,
+        .l_whence = SEEK_SET,
+    };
+    fcntl(fd, F_SETLK, &lock);
+
+
     memcpy((void*)&saved, (void*)&data[index], sizeof(saved));
     memcpy((void*)&edited, (void*)&saved, sizeof(edited));
+
+    lock.l_type = F_UNLCK;
+    fcntl(fd, F_SETLK, &lock);
+
 
     savedIndex = index;
 }
@@ -69,7 +93,7 @@ void edit() {
         printf("NOTHING TO EDIT\n");
         return;
     }
-    
+
     printf("ENTER NEW NAME: ");
     fgets(edited.name, sizeof(edited.name), stdin);
     edited.name[strcspn(edited.name, "\n")] = 0;
