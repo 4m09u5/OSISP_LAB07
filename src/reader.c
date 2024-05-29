@@ -66,26 +66,29 @@ void get(int index) {
 
 void edit() {
     if (savedIndex == -1) {
-        printf("Nothing to edit\n");
+        printf("NOTHING TO EDIT\n");
         return;
     }
     
-    printf("Enter new name: ");
+    printf("ENTER NEW NAME: ");
     fgets(edited.name, sizeof(edited.name), stdin);
     edited.name[strcspn(edited.name, "\n")] = 0;
-    printf("Enter new address: ");
+    printf("ENTER NEW ADDRRESS: ");
     fgets(edited.address, sizeof(edited.address), stdin);
     edited.address[strcspn(edited.address, "\n")] = 0;
     int code;
+    char answer[100];
     do {
-        printf("Enter new semester: ");
-        code = scanf("%hhu\n", &edited.semester);
+        printf("ENTER NEW SEMESTER: ");
+        fgets(answer, sizeof(answer), stdin);
+
+        code = sscanf(answer, "%hhu\n", &edited.semester);
     } while (code != 1);
 }
 
 void put() {
     if (savedIndex == -1) {
-        printf("Nothing to save.\n");
+        printf("NOTHING TO SAVE.\n");
         return;
     }
 
@@ -108,8 +111,8 @@ void put() {
         char answer[100] = {0};
         do {
             printf("ENTER 'Y' TO SAVE IT ANYWAY OR 'N' TO ABORT SAVING: ");
-            scanf("%s\n", (char*)&answer);
-        } while (answer[0] != 'Y' || answer[0] != 'N');
+            fgets(answer, sizeof(answer), stdin);
+        } while (answer[0] != 'Y' && answer[0] != 'N');
 
         if (answer[0] == 'N')
             return;
@@ -151,6 +154,7 @@ int main(int argc, char **argv) {
             put();
             continue;
         }
+        printf("UNKNOWN COMMAND.\n");
     }
 
     unmapFile();
